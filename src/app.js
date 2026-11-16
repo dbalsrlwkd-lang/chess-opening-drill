@@ -584,6 +584,29 @@ function renderRec() {
 /* ---------- 실전 기보: 내가 둔 판이 배운 수순에서 어디서 벗어났는지 ---------- */
 let PG = { text: '', res: null, msg: '', games: [], scan: {} };
 // 엔진으로 한 판을 훑어, 내 수 가운데 평가가 크게 떨어진 곳(실수)을 찾아요
+// 한 판(verbose 수 배열)을 엔진으로 훑어, side 쪽 수 가운데 평가가 1.0 이상 떨어진 곳을 돌려줘요. alive()가 거짓이 되면 그만둬요.
+async function engScan(ms, side, tick, alive) {
+  const uci = ms.map(m => m.from + m.to + (m.promotion || '')), ev = [];
+  for (let k = 0; k <= ms.length; k++) {
+    const o = await SF.go(uci.slice(0, k), { depth: 10 });
+    if (!alive()) return null;
+    ev.push({ v: evNum(o, k % 2 === 0 ? 'w' : 'b'), best: o.best });
+    tick(k, ms.length);
+  }
+  const s = side === 'w' ? 1 : -1, cl = v => Math.max(-800, Math.min(800, v)), h = new Chess(), list = [];
+  for (let k = 0; k < ms.length; k++) {
+    const b = ev[k].best;
+    if ((k % 2 === 0 ? 'w' : 'b') === side && b && b !== uci[k]) {
+      const loss = (cl(ev[k].v) - cl(ev[k + 1].v)) * s;
+      if (loss >= 100) {
+        const bm = h.move({ from: b.slice(0, 2), to: b.slice(2, 4), promotion: b[4] || 'q' }); if (bm) h.undo();
+        list.push({ ply: k, san: ms[k].san, loss, big: loss >= 250, best: bm ? bm.san : b, bestUci: b, a: ev[k].v * s, z: ev[k + 1].v * s });
+      }
+    }
+    h.move(ms[k].san);
+  }
+  return list;
+}
 async function scanGame(i) {
   const gm = PG.games[i], x = PG.res[i]; if (!gm || !x || (PG.scan[i] && PG.scan[i].run)) return;
   const sc = PG.scan[i] = { run: true, txt: '엔진을 준비하는 중…' };
@@ -591,27 +614,9 @@ async function scanGame(i) {
   paint();
   const g = new Chess(), ms = [];
   for (const tok of gm.moves) { const r = g.move(tok); if (!r) break; ms.push(r); if (ms.length >= 120) break; }
-  const uci = ms.map(m => m.from + m.to + (m.promotion || ''));
   try {
-    const ev = [];
-    for (let k = 0; k <= ms.length; k++) {
-      const o = await SF.go(uci.slice(0, k), { depth: 10 });
-      if (PG.scan[i] !== sc) return;
-      ev.push({ v: evNum(o, k % 2 === 0 ? 'w' : 'b'), best: o.best });
-      sc.txt = '엔진이 보는 중… ' + k + ' / ' + ms.length; paint();
-    }
-    const s = x.side === 'w' ? 1 : -1, cl = v => Math.max(-800, Math.min(800, v)), h = new Chess(), list = [];
-    for (let k = 0; k < ms.length; k++) {
-      const b = ev[k].best;
-      if ((k % 2 === 0 ? 'w' : 'b') === x.side && b && b !== uci[k]) {
-        const loss = (cl(ev[k].v) - cl(ev[k + 1].v)) * s;
-        if (loss >= 100) {
-          const bm = h.move({ from: b.slice(0, 2), to: b.slice(2, 4), promotion: b[4] || 'q' }); if (bm) h.undo();
-          list.push({ ply: k, san: ms[k].san, loss, big: loss >= 250, best: bm ? bm.san : b, a: ev[k].v * s, z: ev[k + 1].v * s });
-        }
-      }
-      h.move(ms[k].san);
-    }
+    const list = await engScan(ms, x.side, (k, n) => { sc.txt = '엔진이 보는 중… ' + k + ' / ' + n; paint(); }, () => PG.scan[i] === sc);
+    if (!list) return;
     sc.list = list; sc.n = ms.length;
   } catch (e) { sc.txt = engErr(e); sc.err = true; }
   sc.run = false; paint();
@@ -877,7 +882,7 @@ function renderPlay() {
 const uciOf = g => g.history({ verbose: true }).map(m => m.from + m.to + (m.promotion || ''));
 // 엔진 점수(둘 차례 기준) → 백 기준 센티폰. 메이트는 ±10000 근처로 바꿔요.
 const evNum = (o, turn) => { const v = o.mate !== null ? (o.mate > 0 ? 1 : -1) * (10000 - Math.abs(o.mate)) : (o.cp || 0); return turn === 'w' ? v : -v; };
-const evText = v => Math.abs(v) > 9000 ? (v > 0 ? '+' : '−') + '메이트 ' + (10000 - Math.abs(v)) : (v >= 0 ? '+' : '−') + (Math.abs(v) / 100).toFixed(1);
+const evText = v => Math.abs(v) > 9000 ? (v > 0 ? '이기는 메이트' : '지는 메이트') + (10000 - Math.abs(v) ? ' ' + (10000 - Math.abs(v)) + '수' : '') : (v >= 0 ? '+' : '−') + (Math.abs(v) / 100).toFixed(1); // 항상 '내 기준' 값을 넣어요
 const evWord = mv => { const a = Math.abs(mv); return a < 30 ? '비슷해요' : '내가 ' + (a < 100 ? '조금 ' : a < 300 ? '' : '크게 ') + (mv > 0 ? '유리해요' : '불리해요'); };
 const engErr = e => e && e.message === 'file' ? '엔진은 설치한 앱(인터넷 주소로 연 앱)에서만 돼요. 파일을 직접 열면 쓸 수 없어요.' : '엔진을 불러오지 못했어요. 처음 한 번은 인터넷이 필요해요.';
 const EV = {};
@@ -997,7 +1002,7 @@ function sparMove(from, to) {
 }
 function sparUndo() {
   if (S.busy) return;
-  S.sp.resigned = '';
+  S.sp.resigned = ''; S.rv = null;
   do { if (S.game.history().length <= S.bookLen) break; S.game.undo(); } while (!isUserTurn());
   const h = S.game.history({ verbose: true }); S.last = h.length ? h[h.length - 1] : null;
   S.focus = S.last ? S.last.to : null; S.arrow = null; S.sel = null; S.targets = null;
@@ -1011,6 +1016,44 @@ function sparHint() {
     S.arrow = { from: r.best.slice(0, 2), to: r.best.slice(2, 4) }; renderBoardOnly();
   }, e => { if (S === me) { S.sp.err = engErr(e); render(); } });
 }
+/* 끝난 판 복기: 엔진이 내 실수를 찾아 주고, 항목을 누르면 그 자리와 추천 수를 판에 보여줘요 */
+async function sparReview() {
+  if (S.rv && S.rv.run) return;
+  const me = S, rv = S.rv = { run: true, txt: '엔진을 준비하는 중…' }, ms = S.game.history({ verbose: true });
+  render();
+  try {
+    const list = await engScan(ms, S.line.side, (k, n) => {
+      rv.txt = '엔진이 판을 다시 보는 중… ' + k + ' / ' + n;
+      const e = document.getElementById('rvTxt'); if (e && S === me && S.rv === rv) e.textContent = rv.txt;
+    }, () => S === me && S.rv === rv);
+    if (!list) return;
+    rv.list = list; rv.n = ms.length;
+  } catch (e) { rv.err = engErr(e); }
+  rv.run = false;
+  if (S === me && S.rv === rv) render();
+}
+function sparView(k) {
+  const rv = S.rv, it = rv && rv.list && rv.list.find(x => x.ply === k);
+  if (!it || (rv.view && rv.view.ply === k)) { if (rv) rv.view = null; }
+  else {
+    const g = new Chess(), ms = S.game.history({ verbose: true });
+    for (let i = 0; i < k; i++) g.move(ms[i].san);
+    rv.view = { ply: k, g, it, mine: { from: ms[k].from, to: ms[k].to }, best: { from: it.bestUci.slice(0, 2), to: it.bestUci.slice(2, 4) } };
+  }
+  render(); window.scrollTo(0, 0);
+}
+function rvHtml() {
+  const rv = S.rv;
+  if (!rv) return '<div class="rvbox"><button class="btn" id="rvGo" type="button">이 판에서 내 실수 보기</button></div>';
+  if (rv.run) return '<div class="rvbox"><p class="rvsay" id="rvTxt">' + esc(rv.txt) + '</p></div>';
+  if (rv.err) return '<div class="rvbox"><p class="rvsay">' + esc(rv.err) + '</p></div>';
+  if (!rv.list.length) return '<div class="rvbox"><p style="margin:0">엔진이 ' + rv.n + '수를 다시 봤는데, 내 수에 큰 실수는 없었어요.</p></div>';
+  const top = rv.list.slice().sort((x, y) => y.loss - x.loss).slice(0, 8).sort((x, y) => x.ply - y.ply);
+  return '<div class="rvbox"><div><b>엔진이 찾은 내 실수 ' + rv.list.length + '곳</b>' + (rv.list.length > top.length ? ' (큰 것 ' + top.length + '곳)' : '') + '</div>' +
+    '<p class="rvsay">누르면 그 자리를 판에 보여줘요. 숫자는 내 기준 평가예요(+면 내가 유리).</p>' +
+    top.map(m => '<button class="rvitem" type="button" data-rv="' + m.ply + '" aria-pressed="' + !!(rv.view && rv.view.ply === m.ply) + '"><b class="mono">' + esc(numLabel(m.ply, m.san)) + (m.big ? '??' : '?') + '</b><span>' + evText(m.a) + ' → ' + evText(m.z) + ' · 추천 <b class="mono">' + esc(m.best) + '</b></span></button>').join('') +
+    (rv.view ? '<p class="rvsay">판에서 빨간 표시가 내가 둔 ' + esc(rv.view.it.san) + ', 화살표가 엔진이 추천한 ' + esc(rv.view.it.best) + '예요.</p><button class="btn text" id="rvBack" type="button">마지막 자리로 돌아가기</button>' : '') + '</div>';
+}
 function renderSpar() {
   const L = S.line, lv = sparLv(), over = S.sp.over, free = !!S.free, name = free ? '봇과 두기' : esc(L.title);
   let strip_ = '';
@@ -1022,7 +1065,7 @@ function renderSpar() {
     '<div class="annot' + (over ? ' ok' : '') + '"><span class="mark" style="color:var(--pen)">' + (over ? '끝' : S.busy ? '…' : '?') + '</span><span class="who">Stockfish · ' + SPAR_LV[lv].n + '</span>' +
     '<div class="ask">' + esc(S.sp.err || over || (S.busy ? '봇이 생각하는 중…' : free ? '내 차례예요.' : '내 차례예요. 오프닝에서 세운 계획대로 둬 보세요.')) + '</div>' +
     (L.after && !over ? '<div class="say">' + esc(L.after) + '</div>' : '') + (free ? '' : '<div class="sched">여기서 두는 수는 복습 기록에 들어가지 않아요.</div>') + '</div>' +
-    '<div class="lvsel" role="group" aria-label="봇 세기">' + SPAR_LV.map((x, i) => '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === lv) + '">' + x.n + '</button>').join('') + '</div>' +
+    (over ? rvHtml() : '') + '<div class="lvsel" role="group" aria-label="봇 세기">' + SPAR_LV.map((x, i) => '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === lv) + '">' + x.n + '</button>').join('') + '</div>' +
     '<div class="tgls"><button class="tgl" id="tglInfl" type="button" aria-pressed="' + PREF.infl + '">공격·수비 표시</button><button class="tgl" id="tglEng" type="button" aria-pressed="' + !!PREF.eng + '">엔진 평가</button><button class="tgl" id="tglSnd" type="button" aria-pressed="' + PREF.snd + '">효과음</button></div>' +
     '<div class="controls bar">' +
     (over ? (free ? '<button class="btn primary" id="again" type="button">새 판</button><button class="btn" id="swap" type="button">색 바꿔서</button><button class="btn text" id="spUndo" type="button">무르기</button>'
@@ -1043,6 +1086,8 @@ function renderSpar() {
   on('swap', () => startBot(L.side === 'w' ? 'b' : 'w'));
   on('resign', () => { if (S.busy) return; S.sp.resigned = '기권했어요. 다음 판에 다시 도전해요.'; sparStep(); });
   on('spHint', sparHint); on('spUndo', sparUndo);
+  on('rvGo', sparReview); on('rvBack', () => { S.rv.view = null; render(); });
+  $app.querySelectorAll('[data-rv]').forEach(b => b.onclick = () => sparView(+b.dataset.rv));
   on('tglInfl', () => { PREF.infl = !PREF.infl; savePref(); render(); });
   on('tglEng', () => { PREF.eng = !PREF.eng; savePref(); render(); });
   on('tglSnd', () => { PREF.snd = !PREF.snd; savePref(); if (PREF.snd) snd('ok'); render(); });
@@ -1327,6 +1372,7 @@ function hintParts() {
 }
 function renderBoardOnly() {
   const el = document.getElementById('board'); if (!el) return;
+  if (S.rv && S.rv.view) { const V = S.rv.view; drawBoard(el, V.g, { orient: S.line.side, last: V.mine, bad: [V.mine.to], arrow: V.best }); return; } // 복기: 내가 수를 두기 직전 자리
   const hp = hintParts(), orient = S.line.side, anim = S.anim; S.anim = null;
   const showInfl = PREF.infl && S.focus && !S.sel && !(S.fb && S.fb.kind === 'bad');
   drawBoard(el, S.game, { orient, last: S.last, sel: S.sel, targets: S.targets, hint: hp.hint, near: hp.near, bad: S.bad, arrow: hp.arrow || S.arrow,
