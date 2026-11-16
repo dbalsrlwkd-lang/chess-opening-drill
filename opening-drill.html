@@ -390,6 +390,7 @@ h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.3; letter-spacing: -.01
 .gcard .scan { display: grid; gap: 4px; }
 .scanl { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.7; }
 .legend { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-2); }
+.lvsel button { padding: 0 4px; }
 </style>
 </head>
 <body>
@@ -727,7 +728,7 @@ const LINES = [
       why: { q: '3.Bc4가 f7을 노리는 이유는?', opts: ['킹 혼자 지키는 약한 칸이라서', 'f7에 퀸이 있어서', '그쪽에 폰이 많아서'], a: 0 } },
     { san: 'Bc5', note: '흑도 비숍을 꺼내 백의 약점 f2를 노려요. 거울처럼 같은 생각이에요.' },
     { san: 'c3', note: '다음 수 d4로 중앙을 크게 차지할 준비예요. c3 폰이 d4를 받쳐줘요.', tags: ['중앙'],
-      wrong: { Ng5: 'f7을 두 기물로 공격하지만 흑이 O-O나 Qf6로 막으면 나이트만 시간을 버려요. 같은 기물을 두 번 움직이지 마세요.', Bxf7: 'Bxf7+ Kxf7이면 비숍(3점)을 폰(1점)과 바꾼 손해예요.', Nxe5: 'e5는 c6 나이트가 지켜요. 나이트를 그냥 잃어요.' },
+      wrong: { Ng5: 'g5 나이트를 지키는 기물이 없어요. 흑 퀸이 ...Qxg5로 나이트를 그냥 잡아요.', Bxf7: 'Bxf7+ Kxf7이면 비숍(3점)을 폰(1점)과 바꾼 손해예요.', Nxe5: 'e5는 c6 나이트가 지켜요. 나이트를 그냥 잃어요.' },
       alt: { 'O-O': '캐슬링도 아주 좋은 수예요. 이 라인은 c3을 먼저 둬요.', d3: '좋은 수예요. 이 라인은 c3을 먼저 둬요.', Nc3: '좋은 전개예요. 이 라인은 c3을 둬서 d4를 준비해요.' },
       why: { q: '4.c3의 목적은?', opts: ['다음에 d4를 둬서 중앙을 차지할 준비', '흑 비숍을 가두려고', '퀸이 나올 길을 열려고'], a: 0 } },
     { san: 'Nf6', note: '흑은 나이트를 꺼내 e4 폰을 공격해요.' },
@@ -796,7 +797,7 @@ const LINES = [
       why: { q: '4.Qxd4보다 4.Nxd4가 좋은 이유는?', opts: ['퀸이 c6 나이트에 쫓기지 않게', '폰을 하나 더 따려고', '킹을 지키려고'], a: 0 } },
     { san: 'Bc5', note: '흑 비숍이 d4 나이트를 노려요. 이제 d4를 비숍과 나이트(c6) 둘이 공격해요.' },
     { san: 'Be3', note: '비숍으로 d4 나이트를 한 번 더 지켜요. 공격 2, 수비 2로 맞췄어요.', tags: ['수비', '전개'],
-      wrong: { Bc4: 'd4 나이트를 두 기물이 공격하는데 퀸 하나만 지켜요. ...Bxd4 Qxd4 Nxd4로 퀸을 잃어요.', Nf5: '같은 나이트를 두 번 움직여요. 지켜 주는 수가 필요해요.' },
+      wrong: { Bc4: 'd4 나이트를 두 기물이 공격하는데 퀸 하나만 지켜요. ...Bxd4로 나이트를 잃어요(퀸으로 되잡으면 ...Nxd4에 퀸까지 잃어요).', Nf5: '같은 나이트를 두 번 움직여요. 지켜 주는 수가 필요해요.' },
       alt: { Nb3: '나이트를 피하는 좋은 수예요. 이 라인은 Be3로 지켜요.', Nxc6: '교환하는 수예요. 이 라인은 Be3로 지켜요.' },
       hint: 'c1 비숍이 d4를 지킬 수 있는 칸이 있어요.',
       why: { q: '5.Be3이 필요한 이유는?', opts: ['d4 나이트가 두 번 공격받아서', 'f7을 노리려고', '퀸을 꺼내려고'], a: 0 } },
@@ -898,7 +899,7 @@ const LINES = [
       why: { q: '8.Nbxd2로 되잡는 이유는?', opts: ['전개하면서 e4 폰도 지키려고', '퀸을 아끼려고', '킹을 움직이지 않으려고'], a: 0 } },
     { san: 'd5', note: '흑의 핵심 반격! 중앙 폰 둘을 바로 공격해요.' },
     { san: 'exd5', note: 'c4 비숍과 e4 폰이 동시에 공격받아요. 폰을 잡아 해결해요.', tags: ['수비'],
-      wrong: { Bd3: '...dxe4로 흑이 중앙을 편하게 풀어요. exd5로 폰을 먼저 잡는 게 정석이에요.', Bb3: '...dxe4 뒤 e4에서 기물이 교환되면 백이 손해예요. 폰을 먼저 잡아요.' },
+      wrong: { Bd3: '...dxe4로 흑이 중앙을 편하게 풀어요. exd5로 폰을 먼저 잡는 게 정석이에요.', Bb3: '...dxe4로 폰을 하나 잃어요. 비숍을 피하기 전에 exd5로 폰부터 잡아요.' },
       alt: { Bb5: '둘 수 있어요. 이 라인은 exd5로 간단하게 둬요.' } },
     { san: 'Nxd5', note: '흑이 나이트로 되잡아요. d5 칸은 흑 나이트의 좋은 자리예요.' },
     { san: 'O-O', note: '캐슬링. 다음에 Qb3나 Re1으로 압박해요.', tags: ['킹 안전'],
@@ -966,7 +967,7 @@ const LINES = [
       wrong: { Nxe5: 'Nxe5로 나이트를 잃어요. e5는 c6 나이트가 지켜요.' },
       alt: { d4: '스카치 포 나이츠예요. 좋은 수지만 이 라인은 Bb5예요.', Bc4: '둘 수 있지만 ...Nxe4! Nxe4 d5로 흑이 기물을 되찾으며 편해져요(포크 트릭). 이 라인은 Bb5예요.', Be2: '둘 수 있지만 소극적이에요. 이 라인은 Bb5예요.' } },
     { san: 'Bb4', note: '흑도 똑같이 비숍으로 나이트를 압박해요.' },
-    { san: 'O-O', note: '캐슬링. 킹을 피신시키면 c3 나이트의 핀도 풀려요.', tags: ['킹 안전'],
+    { san: 'O-O', note: '캐슬링. 킹을 안전한 곳으로 옮겨요. 나중에 d 폰을 올려도 c3 나이트가 핀에 걸리지 않아요.', tags: ['킹 안전'],
       wrong: { Nxe5: 'c6 나이트가 아직 지켜요. 나이트를 잃어요.' },
       alt: { d3: '좋은 수예요. 이 라인은 캐슬링을 먼저 해요.' } },
     { san: 'O-O', note: '흑도 캐슬링해요.' },
@@ -1171,7 +1172,7 @@ const LINES = [
       wrong: { Be6: 'e 폰의 길을 막아 f8 비숍이 못 나와요.', Bc8: '집으로 돌아가면 두 수를 버려요.' } },
     { san: 'h4', note: '백이 h 폰을 밀어요. 다음에 h5로 비숍을 가두려는 위협이에요.' },
     { san: 'h6', note: '비숍이 물러날 칸(h7)을 만들어요. 안 두면 h5에 비숍이 갇혀요.', tags: ['수비'],
-      wrong: { Nf6: 'h5로 비숍이 갈 곳이 없어요. h6로 숨을 칸을 먼저 만들어요.', e6: 'h5로 비숍이 갈 곳이 없어요. h6로 숨을 칸을 먼저 만들어요.', Nd7: 'h5로 비숍이 갈 곳이 없어요. h6로 숨을 칸을 먼저 만들어요.' },
+      wrong: { Nf6: 'h5로 비숍이 쫓겨요. ...Be4로 피해도 나이트와 바뀌어 흑이 불리해져요. h6로 숨을 칸을 먼저 만들어요.', e6: 'h5로 비숍이 갈 곳이 없어요. h6로 숨을 칸을 먼저 만들어요.', Nd7: 'h5로 비숍이 갈 곳이 없어요. h6로 숨을 칸을 먼저 만들어요.' },
       alt: { h5: '둘 수 있어요. 다만 g5 칸이 약해져요. 이 라인은 h6예요.' },
       why: { q: '6...h6가 필요한 이유는?', opts: ['h5가 오면 비숍이 h7으로 피할 수 있게', 'g5로 공격하려고', '룩을 꺼내려고'], a: 0 } },
     { san: 'Nf3', note: '백이 나이트를 꺼내요. Ne5로 비숍을 공격하려고 해요.' },
@@ -1396,7 +1397,7 @@ const LINES = [
       why: { q: '4...d5의 목적은?', opts: ['c4 비숍의 대각선을 막아 f7을 지킨다', '백 나이트를 잡으려고', '킹을 피신시키려고'], a: 0 } },
     { san: 'exd5', note: '백이 d5 폰을 잡았어요. 이제 d5 폰이 c6 나이트를 공격해요.' },
     { san: 'Na5', note: '나이트를 피하면서 c4 비숍을 공격해요! 폰 하나를 주는 대신 기물이 빨리 나와요.', tags: ['위협', '함정'],
-      wrong: { Nxd5: '가장 흔한 실수예요! 6.Nxf7! Kxf7 7.Qf3+로 킹이 끌려나와 위험해져요(프라이드 리버 공격).', Qxd5: 'Nc3로 퀸이 쫓기고, f7도 여전히 약해요.' },
+      wrong: { Nxd5: '가장 흔한 실수예요! 6.Nxf7! Kxf7 7.Qf3+로 킹이 끌려나와 위험해져요(프라이드 리버 공격).', Qxd5: 'c4 비숍이 d5 칸을 보고 있어요. Bxd5로 퀸을 그냥 잃어요.' },
       alt: { Nd4: '복잡한 다른 대응이에요. 이 라인은 Na5예요.', b5: '울룸 변화라는 복잡한 수예요. 이 라인은 Na5예요.' },
       hint: 'c6 나이트가 비숍을 공격할 수 있는 칸을 찾아요.',
       why: { q: '5...Nxd5가 위험한 이유는?', opts: ['Nxf7 희생으로 킹이 끌려나온다', '나이트가 바로 잡힌다', '퀸이 갇힌다'], a: 0 } },
@@ -1547,7 +1548,7 @@ const LINES = [
       alt: { Nf3: '좋은 수예요. 이 라인은 Bg5예요.', cxd5: '교환 변화라는 좋은 수예요. 이 라인은 Bg5예요.', Bf4: '좋은 수예요. 이 라인은 Bg5로 핀을 걸어요.' },
       why: { q: '4.Bg5가 간접적으로 압박하는 곳은?', opts: ['d5 — 지키는 나이트를 핀으로 묶어서', 'h7 폰', 'b7 폰'], a: 0 } },
     { san: 'Be7', note: '흑이 비숍을 사이에 넣어 핀을 풀어요.' },
-    { san: 'e3', note: 'c4 폰을 지키고 f1 비숍의 길을 열어요. c1 비숍은 이미 밖에 나와 있어서 갇히지 않아요.', tags: ['중앙', '전개'],
+    { san: 'e3', note: 'c4 폰을 지키고 f1 비숍의 길을 열어요. c1에 있던 비숍은 이미 g5로 나와 있어서 폰 뒤에 갇히지 않아요.', tags: ['중앙', '전개'],
       alt: { Nf3: '좋은 수예요. 이 라인은 e3를 먼저 둬요.', Bxf6: '둘 수 있지만 서둘러 바꿀 필요는 없어요. 핀을 유지해요.' },
       why: { q: 'Bg5를 e3보다 먼저 둔 이유는?', opts: ['e3를 먼저 두면 c1 비숍이 폰 뒤에 갇혀서', 'e3를 먼저 둘 수 없는 규칙이라서', '비숍이 나이트보다 비싸서'], a: 0 } },
     { san: 'O-O', note: '흑이 캐슬링해요.' },
@@ -1851,7 +1852,7 @@ const LINES = [
     { san: 'Bg4', note: 'e5를 지키는 f3 나이트를 핀으로 묶어요.', tags: ['전개', '위협'],
       alt: { g6: '좋은 수예요. 이 라인은 Bg4예요.', dxe5: '좋은 수예요. 이 라인은 Bg4예요.' } },
     { san: 'Be2', note: '백이 핀을 풀어요.' },
-    { san: 'e6', note: 'f8 비숍의 길을 열어요. c8 비숍은 이미 밖에 나와 있어요.', tags: ['전개'] },
+    { san: 'e6', note: 'f8 비숍의 길을 열어요. c8에 있던 비숍은 이미 g4로 나와 있어서 갇히지 않아요.', tags: ['전개'] },
     { san: 'O-O', note: '백이 캐슬링해요.' },
     { san: 'Be7', note: '비숍을 꺼내 캐슬링을 준비해요.', tags: ['전개'] },
     { san: 'c4', note: '백이 나이트를 또 쫓아요.' },
@@ -2564,11 +2565,11 @@ const SOON = [];
 
 // 오프닝 이후: 수순이 끝난 자리에서 다음 계획을 묻는 문제 (정답은 항상 첫 번째, 화면에서는 섞여요)
 const PLAN = {
-  'italian-w': { q: '이 자리에서 백의 다음 계획은?', opts: ['h3로 g4를 막고 나이트를 d2–f1–g3로 돌린다', '퀸을 h5로 보내 바로 공격한다', 'a 폰과 b 폰을 끝까지 민다'] },
-  'italian-w-2n': { q: '수순이 달라도 같은 자리가 됐어요. 백의 계획은?', opts: ['h3, Nbd2–f1–g3 뒤 d4로 중앙을 연다', 'Ng5로 f7을 바로 공격한다', '비숍을 모두 교환한다'] },
+  'italian-w': { q: '이 자리에서 백의 다음 계획은?', opts: ['h3로 g4를 막고, 룩을 e1으로 옮긴 뒤 나이트를 d2–f1–g3로 돌린다', '퀸을 h5로 보내 바로 공격한다', 'a 폰과 b 폰을 끝까지 민다'] },
+  'italian-w-2n': { q: '수순이 달라도 같은 자리가 됐어요. 백의 계획은?', opts: ['h3, Re1, Nbd2–f1–g3 뒤 d4로 중앙을 연다', 'Ng5로 f7을 바로 공격한다', '비숍을 모두 교환한다'] },
   'italian-w-main': { q: '백은 d4에 고립 폰이 있어요. 어떻게 둬야 할까요?', opts: ['Qb3, Re1으로 기물을 활발하게 써서 압박한다', '기물을 전부 바꿔 끝내기로 간다', 'd4 폰을 지키는 데만 집중한다'] },
   'evans-w': { q: '폰 하나가 적은 백이 해야 할 일은?', opts: ['Nc3, Bg5, Qb3로 빠르게 공격한다', '폰을 되찾을 때까지 수비한다', '퀸을 교환해 끝내기로 간다'] },
-  'scotch-w': { q: '중앙이 열린 이 자리에서 백의 계획은?', opts: ['캐슬링 뒤 f4, e5로 공간을 넓힌다', 'd4 나이트를 집으로 돌려보낸다', 'h 폰을 밀어 공격한다'] },
+  'scotch-w': { q: '중앙이 열린 이 자리에서 백의 계획은?', opts: ['b1 나이트를 a3–c2로 돌려 d4를 받치고, 그 뒤 f4로 공간을 넓힌다', 'd4 나이트를 집으로 돌려보낸다', 'h 폰을 밀어 공격한다'] },
   'ruy-w': { q: '루이 로페즈 기본 자리에서 백의 다음 수순은?', opts: ['h3로 ...Bg4를 막고 d4로 중앙을 연다', 'Bxc6로 바로 나이트를 잡는다', 'Ng5로 f7을 공격한다'] },
   'fourknights-w': { q: 'Bg5 핀을 건 백의 계획은?', opts: ['Re1, d4로 중앙을 열고 핀을 이용한다', '비숍을 h4–g3로 물린다', '퀸 쪽에 캐슬링한다'] },
   'kg-w': { q: '킹스 갬빗에서 백이 노리는 것은?', opts: ['g3나 h4로 폰 사슬을 깨고 f 파일로 공격한다', 'f4 폰을 그냥 포기하고 수비한다', '퀸을 교환한다'] },
@@ -3051,6 +3052,8 @@ function renderHome() {
   const fw = forkPool('w').length, fb = forkPool('b').length;
   if (fw >= 2 || fb >= 2) h += '<section class="homework fork"><div><span class="label ink">갈림길 연습</span><h2>상대가 고르는 길에 맞춰 두기</h2><p>배운 오프닝을 한데 섞어요. 상대가 어느 수를 둘지 몰라요.</p></div><div class="frow">' +
     (fw >= 2 ? '<button class="btn" data-fork="w" type="button">백으로 · ' + fw + '개</button>' : '') + (fb >= 2 ? '<button class="btn" data-fork="b" type="button">흑으로 · ' + fb + '개</button>' : '') + '</div></section>';
+  h += '<section class="homework fork"><div><span class="label ink">봇과 두기</span><h2>Stockfish와 자유롭게 한 판</h2><p>오프닝과 상관없이 처음부터 둬요. 세기는 판 안에서 바꿀 수 있어요.</p></div><div class="frow">' +
+    '<button class="btn" data-bot="w" type="button">백으로</button><button class="btn" data-bot="b" type="button">흑으로</button><button class="btn" data-bot="r" type="button">아무 색</button></div></section>';
   h += '<section class="chapter"><div class="chead"><h2>첫 수로 고르기</h2><span class="muted">백이 맨 처음 움직이는 기물</span></div><ul class="toc firsts">';
   const t = today();
   for (const F of FIRSTS) {
@@ -3065,6 +3068,7 @@ function renderHome() {
   $app.querySelectorAll('[data-fthumb]').forEach(el => { const g = new Chess(); if (el.dataset.fthumb !== 'etc') g.move(el.dataset.fthumb); drawBoard(el, g, { orient: 'w', mini: true, flat: true }); });
   $app.querySelectorAll('[data-first]').forEach(b => b.onclick = () => go('first', b.dataset.first));
   $app.querySelectorAll('[data-fork]').forEach(b => b.onclick = () => startFork(b.dataset.fork));
+  $app.querySelectorAll('[data-bot]').forEach(b => b.onclick = () => startBot(b.dataset.bot));
   const sr = document.getElementById('startReview'); if (sr) sr.onclick = () => startReview();
   const se = document.getElementById('startEarly'); if (se) se.onclick = () => startReview(true);
   const sf = document.getElementById('startFirst'); if (sf) sf.onclick = () => go('intro', 'italian-w');
@@ -3531,26 +3535,46 @@ function engCompare(r, bookSan) { // 틀린 수(또는 다른 좋은 수)를 둔
     if (S === me && S.fb === fb && el) el.textContent = fb.eng;
   });
 }
-const SPAR_LV = [{ n: '쉬움', skill: 0, depth: 1 }, { n: '보통', skill: 3, depth: 5 }, { n: '강함', skill: 9, depth: 9 }, { n: '최강', skill: 20, movetime: 700 }];
-const sparLv = () => SPAR_LV[PREF.sfLv] ? PREF.sfLv : 1;
+const SPAR_LV = [{ n: '입문', skill: 0, depth: 1, rnd: .35 }, { n: '쉬움', skill: 0, depth: 1 }, { n: '보통', skill: 3, depth: 5 }, { n: '강함', skill: 9, depth: 9 }, { n: '최강', skill: 20, movetime: 700 }];
+if (PREF.sfLvV !== 2) { PREF.sfLv = PREF.sfLv == null ? 2 : PREF.sfLv + 1; PREF.sfLvV = 2; savePref(); } // '입문' 단계를 앞에 넣으면서 번호를 한 칸 밀었어요
+const sparLv = () => SPAR_LV[PREF.sfLv] ? PREF.sfLv : 2;
+const sparInit = () => ({ over: '', err: '', resigned: '' });
 function startSpar() { // 오프닝이 끝난 자리에서 엔진을 상대로 계속 둬요. 기록(숙련도·복습)에는 영향이 없어요.
   clearTimeout(S.autoAdvance);
-  Object.assign(S, { mode: 'spar', finished: false, fb: null, quiz: null, coach: null, arrow: null, bad: null, sel: null, targets: null, hintStep: 0,
-    pause: false, busy: false, waiting: false, toast: '', bookLen: S.game.history().length, sp: { over: '', err: '' } });
+  Object.assign(S, { mode: 'spar', free: false, finished: false, fb: null, quiz: null, coach: null, arrow: null, bad: null, sel: null, targets: null, hintStep: 0,
+    pause: false, busy: false, waiting: false, toast: '', bookLen: S.game.history().length, sp: sparInit() });
   window.scrollTo(0, 0);
   sparStep();
 }
+function startBot(side) { // 오프닝과 상관없이 처음 자리에서 봇과 한 판. side: 'w' | 'b' | 'r'(아무 색)
+  if (side !== 'w' && side !== 'b') side = Math.random() < .5 ? 'w' : 'b';
+  S = newSession({ mode: 'spar', free: true, line: { id: null, title: '봇과 두기', side, after: '', moves: [] }, bookLen: 0, sp: sparInit() });
+  view = 'play'; window.scrollTo(0, 0);
+  sparStep();
+}
+function posKey(g) { let k = g.turn(); for (const f of FILES) for (let r = 1; r <= 8; r++) { const p = g.get(f + r); k += p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : '-'; } return k; }
 function sparOver() {
-  const g = S.game; if (g.moves().length) return '';
-  return g.in_checkmate() ? (isUserTurn() ? '체크메이트. 이번에는 엔진이 이겼어요.' : '체크메이트! 내가 이겼어요.') : '둘 수가 없어서 비겼어요(스테일메이트).';
+  const g = S.game;
+  if (!g.moves().length) return g.in_checkmate() ? (isUserTurn() ? '체크메이트. 이번에는 봇이 이겼어요.' : '체크메이트! 내가 이겼어요.') : '둘 수가 없어서 비겼어요(스테일메이트).';
+  const hv = g.history({ verbose: true });
+  let quiet = 0; for (let i = hv.length - 1; i >= 0 && !hv[i].captured && hv[i].piece !== 'p'; i--) quiet++;
+  if (quiet >= 100) return '50수 동안 기물을 잡지도 폰을 밀지도 않아서 비겼어요.';
+  const rest = []; for (const f of FILES) for (let r = 1; r <= 8; r++) { const p = g.get(f + r); if (p && p.type !== 'k') rest.push(p.type); }
+  if (!rest.length || (rest.length === 1 && 'bn'.includes(rest[0]))) return '남은 기물로는 체크메이트를 만들 수 없어서 비겼어요.';
+  const cur = posKey(g), h = new Chess(); let same = posKey(h) === cur ? 1 : 0;
+  for (const m of hv) { h.move(m.san); if (posKey(h) === cur) same++; }
+  return same >= 3 ? '같은 자리가 세 번 나와서 비겼어요.' : '';
 }
 async function sparStep() {
-  const me = S; S.sp.err = ''; S.sp.over = sparOver();
+  const me = S; S.sp.err = ''; S.sp.over = S.sp.resigned || sparOver();
   if (S.sp.over) { S.waiting = false; S.busy = false; snd('done'); return render(); }
   if (isUserTurn()) { S.waiting = true; S.busy = false; return render(); }
   S.waiting = false; S.busy = true; render();
   try {
-    const got = await Promise.all([SF.go(uciOf(S.game), SPAR_LV[sparLv()]), delay(450)]), b = got[0].best;
+    const lv = SPAR_LV[sparLv()], legal = S.game.moves({ verbose: true });
+    let b;
+    if (lv.rnd && Math.random() < lv.rnd) { const m = legal[Math.floor(Math.random() * legal.length)]; b = m.from + m.to + (m.promotion || ''); await delay(450); } // 입문: 가끔 아무 수나 둬요
+    else b = (await Promise.all([SF.go(uciOf(S.game), lv), delay(450)]))[0].best;
     if (S !== me || S.mode !== 'spar') return;
     const mv = b && S.game.move({ from: b.slice(0, 2), to: b.slice(2, 4), promotion: b[4] || 'q' });
     if (!mv) throw new Error('move');
@@ -3566,6 +3590,7 @@ function sparMove(from, to) {
 }
 function sparUndo() {
   if (S.busy) return;
+  S.sp.resigned = '';
   do { if (S.game.history().length <= S.bookLen) break; S.game.undo(); } while (!isUserTurn());
   const h = S.game.history({ verbose: true }); S.last = h.length ? h[h.length - 1] : null;
   S.focus = S.last ? S.last.to : null; S.arrow = null; S.sel = null; S.targets = null;
@@ -3580,29 +3605,36 @@ function sparHint() {
   }, e => { if (S === me) { S.sp.err = engErr(e); render(); } });
 }
 function renderSpar() {
-  const L = S.line, lv = sparLv(), over = S.sp.over;
+  const L = S.line, lv = sparLv(), over = S.sp.over, free = !!S.free, name = free ? '봇과 두기' : esc(L.title);
   let strip_ = '';
   S.game.history().forEach((san, i) => {
     if (i % 2 === 0) strip_ += '<span class="no">' + (i / 2 + 1) + '.</span>';
     strip_ += '<span class="mv' + (((i % 2 === 0) ? 'w' : 'b') === L.side ? ' mine' : '') + (i < S.bookLen ? ' ghost' : '') + '">' + esc(san) + '</span>';
   });
-  let p = '<div class="phead"><span class="label">' + esc(L.title) + ' · 오프닝 이후</span><div class="row"><h1>엔진과 이어 두기</h1><span class="stamp">실전</span></div></div>' +
+  let p = '<div class="phead"><span class="label">' + (free ? '자유 대국 · ' + (L.side === 'w' ? '나는 백' : '나는 흑') : esc(L.title) + ' · 오프닝 이후') + '</span><div class="row"><h1>' + (free ? '봇과 두기' : '엔진과 이어 두기') + '</h1><span class="stamp">실전</span></div></div>' +
     '<div class="annot' + (over ? ' ok' : '') + '"><span class="mark" style="color:var(--pen)">' + (over ? '끝' : S.busy ? '…' : '?') + '</span><span class="who">Stockfish · ' + SPAR_LV[lv].n + '</span>' +
-    '<div class="ask">' + esc(S.sp.err || over || (S.busy ? '엔진이 생각하는 중…' : '내 차례예요. 오프닝에서 세운 계획대로 둬 보세요.')) + '</div>' +
-    (L.after && !over ? '<div class="say">' + esc(L.after) + '</div>' : '') + '<div class="sched">여기서 두는 수는 복습 기록에 들어가지 않아요.</div></div>' +
-    '<div class="lvsel" role="group" aria-label="엔진 세기">' + SPAR_LV.map((x, i) => '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === lv) + '">' + x.n + '</button>').join('') + '</div>' +
+    '<div class="ask">' + esc(S.sp.err || over || (S.busy ? '봇이 생각하는 중…' : free ? '내 차례예요.' : '내 차례예요. 오프닝에서 세운 계획대로 둬 보세요.')) + '</div>' +
+    (L.after && !over ? '<div class="say">' + esc(L.after) + '</div>' : '') + (free ? '' : '<div class="sched">여기서 두는 수는 복습 기록에 들어가지 않아요.</div>') + '</div>' +
+    '<div class="lvsel" role="group" aria-label="봇 세기">' + SPAR_LV.map((x, i) => '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === lv) + '">' + x.n + '</button>').join('') + '</div>' +
     '<div class="tgls"><button class="tgl" id="tglEng" type="button" aria-pressed="' + !!PREF.eng + '">엔진 평가</button><button class="tgl" id="tglSnd" type="button" aria-pressed="' + PREF.snd + '">효과음</button></div>' +
-    '<div class="controls bar">' + (over ? '<button class="btn primary" id="again" type="button">오프닝 다시 연습</button>' : '<button class="btn" id="spHint" type="button"' + (S.waiting ? '' : ' disabled') + '>추천 수</button>') +
-    '<button class="btn text" id="spUndo" type="button"' + (S.busy || S.game.history().length <= S.bookLen ? ' disabled' : '') + '>한 수 무르기</button><button class="btn text" id="back2" type="button">그만하기</button></div>';
-  $app.innerHTML = '<div class="play-wrap"><div class="mhead"><button class="mback" id="mback" type="button" aria-label="뒤로">←</button><b>' + esc(L.title) + '</b><span class="stamp">실전</span></div>' +
-    '<button class="back" id="back" type="button">← ' + esc(L.title) + ' 소개</button>' +
+    '<div class="controls bar">' +
+    (over ? (free ? '<button class="btn primary" id="again" type="button">새 판</button><button class="btn" id="swap" type="button">색 바꿔서</button><button class="btn text" id="spUndo" type="button">무르기</button>'
+                  : '<button class="btn primary" id="again" type="button">오프닝 다시 연습</button><button class="btn text" id="spUndo" type="button">한 수 무르기</button><button class="btn text" id="back2" type="button">그만하기</button>')
+          : '<button class="btn" id="spHint" type="button"' + (S.waiting ? '' : ' disabled') + '>추천 수</button>' +
+            '<button class="btn text" id="spUndo" type="button"' + (S.busy || S.game.history().length <= S.bookLen ? ' disabled' : '') + '>한 수 무르기</button>' +
+            (free ? '<button class="btn text" id="resign" type="button"' + (S.busy ? ' disabled' : '') + '>기권</button>' : '<button class="btn text" id="back2" type="button">그만하기</button>')) + '</div>';
+  $app.innerHTML = '<div class="play-wrap"><div class="mhead"><button class="mback" id="mback" type="button" aria-label="뒤로">←</button><b>' + name + '</b><span class="stamp">실전</span></div>' +
+    '<button class="back" id="back" type="button">← ' + (free ? '첫 화면' : esc(L.title) + ' 소개') + '</button>' +
     '<div class="play"><div class="boardcol"><div class="turn"><span><b>' + (S.game.turn() === 'w' ? '○ 백' : '● 흑') + ' 차례</b>' + (S.waiting ? ' · 내 차례' : '') + '</span><span>' + (L.side === 'w' ? '나: 백' : '나: 흑') + '</span></div>' +
     evbarHtml() + diagramHtml('board', L.side, false) + '<div class="strip" id="strip" aria-label="기보">' + strip_ + '</div></div><div class="sheetcol" aria-live="polite">' + p + '</div></div></div>';
   const st = document.getElementById('strip'); st.scrollLeft = st.scrollWidth;
   renderBoardOnly(); bindBoard(); engTick();
   const on = (id, fn) => { const e = document.getElementById(id); if (e) e.onclick = fn; };
-  on('back', () => go('intro', L.id)); on('mback', () => go('intro', L.id)); on('back2', () => go('intro', L.id));
-  on('again', () => startLine(L.id, 'practice'));
+  const leave = () => free ? go('home') : go('intro', L.id);
+  on('back', leave); on('mback', leave); on('back2', leave);
+  on('again', () => free ? startBot(L.side) : startLine(L.id, 'practice'));
+  on('swap', () => startBot(L.side === 'w' ? 'b' : 'w'));
+  on('resign', () => { if (S.busy) return; S.sp.resigned = '기권했어요. 다음 판에 다시 도전해요.'; sparStep(); });
   on('spHint', sparHint); on('spUndo', sparUndo);
   on('tglEng', () => { PREF.eng = !PREF.eng; savePref(); render(); });
   on('tglSnd', () => { PREF.snd = !PREF.snd; savePref(); if (PREF.snd) snd('ok'); render(); });

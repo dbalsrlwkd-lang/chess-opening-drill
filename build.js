@@ -17,7 +17,10 @@ console.log('built', Buffer.byteLength(out), 'bytes → opening-drill.html, depl
 const SF = ['stockfish-19-lite-single.js', 'stockfish-19-lite-single.wasm'];
 const bin = path.join(__dirname, 'node_modules', 'stockfish', 'bin');
 if (SF.every(f => fs.existsSync(path.join(bin, f)))) {
-  for (const f of SF) fs.copyFileSync(path.join(bin, f), path.join(__dirname, 'deploy', f));
+  for (const f of SF) { // 내용이 같으면 다시 복사하지 않아요(서버가 읽는 도중에 파일이 비는 일을 막아요)
+    const to = path.join(__dirname, 'deploy', f);
+    if (!fs.existsSync(to) || fs.statSync(to).size !== fs.statSync(path.join(bin, f)).size) fs.copyFileSync(path.join(bin, f), to);
+  }
   console.log('engine → deploy/' + SF.join(', deploy/'));
 } else if (!SF.every(f => fs.existsSync(path.join(__dirname, 'deploy', f)))) {
   console.log('주의: Stockfish 파일이 없어요. "npm install" 을 먼저 실행하세요. (엔진 기능만 꺼지고 나머지는 동작해요)');

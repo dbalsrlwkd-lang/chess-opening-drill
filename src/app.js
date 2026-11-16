@@ -433,6 +433,8 @@ function renderHome() {
   const fw = forkPool('w').length, fb = forkPool('b').length;
   if (fw >= 2 || fb >= 2) h += '<section class="homework fork"><div><span class="label ink">갈림길 연습</span><h2>상대가 고르는 길에 맞춰 두기</h2><p>배운 오프닝을 한데 섞어요. 상대가 어느 수를 둘지 몰라요.</p></div><div class="frow">' +
     (fw >= 2 ? '<button class="btn" data-fork="w" type="button">백으로 · ' + fw + '개</button>' : '') + (fb >= 2 ? '<button class="btn" data-fork="b" type="button">흑으로 · ' + fb + '개</button>' : '') + '</div></section>';
+  h += '<section class="homework fork"><div><span class="label ink">봇과 두기</span><h2>Stockfish와 자유롭게 한 판</h2><p>오프닝과 상관없이 처음부터 둬요. 세기는 판 안에서 바꿀 수 있어요.</p></div><div class="frow">' +
+    '<button class="btn" data-bot="w" type="button">백으로</button><button class="btn" data-bot="b" type="button">흑으로</button><button class="btn" data-bot="r" type="button">아무 색</button></div></section>';
   h += '<section class="chapter"><div class="chead"><h2>첫 수로 고르기</h2><span class="muted">백이 맨 처음 움직이는 기물</span></div><ul class="toc firsts">';
   const t = today();
   for (const F of FIRSTS) {
@@ -447,6 +449,7 @@ function renderHome() {
   $app.querySelectorAll('[data-fthumb]').forEach(el => { const g = new Chess(); if (el.dataset.fthumb !== 'etc') g.move(el.dataset.fthumb); drawBoard(el, g, { orient: 'w', mini: true, flat: true }); });
   $app.querySelectorAll('[data-first]').forEach(b => b.onclick = () => go('first', b.dataset.first));
   $app.querySelectorAll('[data-fork]').forEach(b => b.onclick = () => startFork(b.dataset.fork));
+  $app.querySelectorAll('[data-bot]').forEach(b => b.onclick = () => startBot(b.dataset.bot));
   const sr = document.getElementById('startReview'); if (sr) sr.onclick = () => startReview();
   const se = document.getElementById('startEarly'); if (se) se.onclick = () => startReview(true);
   const sf = document.getElementById('startFirst'); if (sf) sf.onclick = () => go('intro', 'italian-w');
@@ -913,26 +916,46 @@ function engCompare(r, bookSan) { // 틀린 수(또는 다른 좋은 수)를 둔
     if (S === me && S.fb === fb && el) el.textContent = fb.eng;
   });
 }
-const SPAR_LV = [{ n: '쉬움', skill: 0, depth: 1 }, { n: '보통', skill: 3, depth: 5 }, { n: '강함', skill: 9, depth: 9 }, { n: '최강', skill: 20, movetime: 700 }];
-const sparLv = () => SPAR_LV[PREF.sfLv] ? PREF.sfLv : 1;
+const SPAR_LV = [{ n: '입문', skill: 0, depth: 1, rnd: .35 }, { n: '쉬움', skill: 0, depth: 1 }, { n: '보통', skill: 3, depth: 5 }, { n: '강함', skill: 9, depth: 9 }, { n: '최강', skill: 20, movetime: 700 }];
+if (PREF.sfLvV !== 2) { PREF.sfLv = PREF.sfLv == null ? 2 : PREF.sfLv + 1; PREF.sfLvV = 2; savePref(); } // '입문' 단계를 앞에 넣으면서 번호를 한 칸 밀었어요
+const sparLv = () => SPAR_LV[PREF.sfLv] ? PREF.sfLv : 2;
+const sparInit = () => ({ over: '', err: '', resigned: '' });
 function startSpar() { // 오프닝이 끝난 자리에서 엔진을 상대로 계속 둬요. 기록(숙련도·복습)에는 영향이 없어요.
   clearTimeout(S.autoAdvance);
-  Object.assign(S, { mode: 'spar', finished: false, fb: null, quiz: null, coach: null, arrow: null, bad: null, sel: null, targets: null, hintStep: 0,
-    pause: false, busy: false, waiting: false, toast: '', bookLen: S.game.history().length, sp: { over: '', err: '' } });
+  Object.assign(S, { mode: 'spar', free: false, finished: false, fb: null, quiz: null, coach: null, arrow: null, bad: null, sel: null, targets: null, hintStep: 0,
+    pause: false, busy: false, waiting: false, toast: '', bookLen: S.game.history().length, sp: sparInit() });
   window.scrollTo(0, 0);
   sparStep();
 }
+function startBot(side) { // 오프닝과 상관없이 처음 자리에서 봇과 한 판. side: 'w' | 'b' | 'r'(아무 색)
+  if (side !== 'w' && side !== 'b') side = Math.random() < .5 ? 'w' : 'b';
+  S = newSession({ mode: 'spar', free: true, line: { id: null, title: '봇과 두기', side, after: '', moves: [] }, bookLen: 0, sp: sparInit() });
+  view = 'play'; window.scrollTo(0, 0);
+  sparStep();
+}
+function posKey(g) { let k = g.turn(); for (const f of FILES) for (let r = 1; r <= 8; r++) { const p = g.get(f + r); k += p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : '-'; } return k; }
 function sparOver() {
-  const g = S.game; if (g.moves().length) return '';
-  return g.in_checkmate() ? (isUserTurn() ? '체크메이트. 이번에는 엔진이 이겼어요.' : '체크메이트! 내가 이겼어요.') : '둘 수가 없어서 비겼어요(스테일메이트).';
+  const g = S.game;
+  if (!g.moves().length) return g.in_checkmate() ? (isUserTurn() ? '체크메이트. 이번에는 봇이 이겼어요.' : '체크메이트! 내가 이겼어요.') : '둘 수가 없어서 비겼어요(스테일메이트).';
+  const hv = g.history({ verbose: true });
+  let quiet = 0; for (let i = hv.length - 1; i >= 0 && !hv[i].captured && hv[i].piece !== 'p'; i--) quiet++;
+  if (quiet >= 100) return '50수 동안 기물을 잡지도 폰을 밀지도 않아서 비겼어요.';
+  const rest = []; for (const f of FILES) for (let r = 1; r <= 8; r++) { const p = g.get(f + r); if (p && p.type !== 'k') rest.push(p.type); }
+  if (!rest.length || (rest.length === 1 && 'bn'.includes(rest[0]))) return '남은 기물로는 체크메이트를 만들 수 없어서 비겼어요.';
+  const cur = posKey(g), h = new Chess(); let same = posKey(h) === cur ? 1 : 0;
+  for (const m of hv) { h.move(m.san); if (posKey(h) === cur) same++; }
+  return same >= 3 ? '같은 자리가 세 번 나와서 비겼어요.' : '';
 }
 async function sparStep() {
-  const me = S; S.sp.err = ''; S.sp.over = sparOver();
+  const me = S; S.sp.err = ''; S.sp.over = S.sp.resigned || sparOver();
   if (S.sp.over) { S.waiting = false; S.busy = false; snd('done'); return render(); }
   if (isUserTurn()) { S.waiting = true; S.busy = false; return render(); }
   S.waiting = false; S.busy = true; render();
   try {
-    const got = await Promise.all([SF.go(uciOf(S.game), SPAR_LV[sparLv()]), delay(450)]), b = got[0].best;
+    const lv = SPAR_LV[sparLv()], legal = S.game.moves({ verbose: true });
+    let b;
+    if (lv.rnd && Math.random() < lv.rnd) { const m = legal[Math.floor(Math.random() * legal.length)]; b = m.from + m.to + (m.promotion || ''); await delay(450); } // 입문: 가끔 아무 수나 둬요
+    else b = (await Promise.all([SF.go(uciOf(S.game), lv), delay(450)]))[0].best;
     if (S !== me || S.mode !== 'spar') return;
     const mv = b && S.game.move({ from: b.slice(0, 2), to: b.slice(2, 4), promotion: b[4] || 'q' });
     if (!mv) throw new Error('move');
@@ -948,6 +971,7 @@ function sparMove(from, to) {
 }
 function sparUndo() {
   if (S.busy) return;
+  S.sp.resigned = '';
   do { if (S.game.history().length <= S.bookLen) break; S.game.undo(); } while (!isUserTurn());
   const h = S.game.history({ verbose: true }); S.last = h.length ? h[h.length - 1] : null;
   S.focus = S.last ? S.last.to : null; S.arrow = null; S.sel = null; S.targets = null;
@@ -962,29 +986,36 @@ function sparHint() {
   }, e => { if (S === me) { S.sp.err = engErr(e); render(); } });
 }
 function renderSpar() {
-  const L = S.line, lv = sparLv(), over = S.sp.over;
+  const L = S.line, lv = sparLv(), over = S.sp.over, free = !!S.free, name = free ? '봇과 두기' : esc(L.title);
   let strip_ = '';
   S.game.history().forEach((san, i) => {
     if (i % 2 === 0) strip_ += '<span class="no">' + (i / 2 + 1) + '.</span>';
     strip_ += '<span class="mv' + (((i % 2 === 0) ? 'w' : 'b') === L.side ? ' mine' : '') + (i < S.bookLen ? ' ghost' : '') + '">' + esc(san) + '</span>';
   });
-  let p = '<div class="phead"><span class="label">' + esc(L.title) + ' · 오프닝 이후</span><div class="row"><h1>엔진과 이어 두기</h1><span class="stamp">실전</span></div></div>' +
+  let p = '<div class="phead"><span class="label">' + (free ? '자유 대국 · ' + (L.side === 'w' ? '나는 백' : '나는 흑') : esc(L.title) + ' · 오프닝 이후') + '</span><div class="row"><h1>' + (free ? '봇과 두기' : '엔진과 이어 두기') + '</h1><span class="stamp">실전</span></div></div>' +
     '<div class="annot' + (over ? ' ok' : '') + '"><span class="mark" style="color:var(--pen)">' + (over ? '끝' : S.busy ? '…' : '?') + '</span><span class="who">Stockfish · ' + SPAR_LV[lv].n + '</span>' +
-    '<div class="ask">' + esc(S.sp.err || over || (S.busy ? '엔진이 생각하는 중…' : '내 차례예요. 오프닝에서 세운 계획대로 둬 보세요.')) + '</div>' +
-    (L.after && !over ? '<div class="say">' + esc(L.after) + '</div>' : '') + '<div class="sched">여기서 두는 수는 복습 기록에 들어가지 않아요.</div></div>' +
-    '<div class="lvsel" role="group" aria-label="엔진 세기">' + SPAR_LV.map((x, i) => '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === lv) + '">' + x.n + '</button>').join('') + '</div>' +
+    '<div class="ask">' + esc(S.sp.err || over || (S.busy ? '봇이 생각하는 중…' : free ? '내 차례예요.' : '내 차례예요. 오프닝에서 세운 계획대로 둬 보세요.')) + '</div>' +
+    (L.after && !over ? '<div class="say">' + esc(L.after) + '</div>' : '') + (free ? '' : '<div class="sched">여기서 두는 수는 복습 기록에 들어가지 않아요.</div>') + '</div>' +
+    '<div class="lvsel" role="group" aria-label="봇 세기">' + SPAR_LV.map((x, i) => '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === lv) + '">' + x.n + '</button>').join('') + '</div>' +
     '<div class="tgls"><button class="tgl" id="tglEng" type="button" aria-pressed="' + !!PREF.eng + '">엔진 평가</button><button class="tgl" id="tglSnd" type="button" aria-pressed="' + PREF.snd + '">효과음</button></div>' +
-    '<div class="controls bar">' + (over ? '<button class="btn primary" id="again" type="button">오프닝 다시 연습</button>' : '<button class="btn" id="spHint" type="button"' + (S.waiting ? '' : ' disabled') + '>추천 수</button>') +
-    '<button class="btn text" id="spUndo" type="button"' + (S.busy || S.game.history().length <= S.bookLen ? ' disabled' : '') + '>한 수 무르기</button><button class="btn text" id="back2" type="button">그만하기</button></div>';
-  $app.innerHTML = '<div class="play-wrap"><div class="mhead"><button class="mback" id="mback" type="button" aria-label="뒤로">←</button><b>' + esc(L.title) + '</b><span class="stamp">실전</span></div>' +
-    '<button class="back" id="back" type="button">← ' + esc(L.title) + ' 소개</button>' +
+    '<div class="controls bar">' +
+    (over ? (free ? '<button class="btn primary" id="again" type="button">새 판</button><button class="btn" id="swap" type="button">색 바꿔서</button><button class="btn text" id="spUndo" type="button">무르기</button>'
+                  : '<button class="btn primary" id="again" type="button">오프닝 다시 연습</button><button class="btn text" id="spUndo" type="button">한 수 무르기</button><button class="btn text" id="back2" type="button">그만하기</button>')
+          : '<button class="btn" id="spHint" type="button"' + (S.waiting ? '' : ' disabled') + '>추천 수</button>' +
+            '<button class="btn text" id="spUndo" type="button"' + (S.busy || S.game.history().length <= S.bookLen ? ' disabled' : '') + '>한 수 무르기</button>' +
+            (free ? '<button class="btn text" id="resign" type="button"' + (S.busy ? ' disabled' : '') + '>기권</button>' : '<button class="btn text" id="back2" type="button">그만하기</button>')) + '</div>';
+  $app.innerHTML = '<div class="play-wrap"><div class="mhead"><button class="mback" id="mback" type="button" aria-label="뒤로">←</button><b>' + name + '</b><span class="stamp">실전</span></div>' +
+    '<button class="back" id="back" type="button">← ' + (free ? '첫 화면' : esc(L.title) + ' 소개') + '</button>' +
     '<div class="play"><div class="boardcol"><div class="turn"><span><b>' + (S.game.turn() === 'w' ? '○ 백' : '● 흑') + ' 차례</b>' + (S.waiting ? ' · 내 차례' : '') + '</span><span>' + (L.side === 'w' ? '나: 백' : '나: 흑') + '</span></div>' +
     evbarHtml() + diagramHtml('board', L.side, false) + '<div class="strip" id="strip" aria-label="기보">' + strip_ + '</div></div><div class="sheetcol" aria-live="polite">' + p + '</div></div></div>';
   const st = document.getElementById('strip'); st.scrollLeft = st.scrollWidth;
   renderBoardOnly(); bindBoard(); engTick();
   const on = (id, fn) => { const e = document.getElementById(id); if (e) e.onclick = fn; };
-  on('back', () => go('intro', L.id)); on('mback', () => go('intro', L.id)); on('back2', () => go('intro', L.id));
-  on('again', () => startLine(L.id, 'practice'));
+  const leave = () => free ? go('home') : go('intro', L.id);
+  on('back', leave); on('mback', leave); on('back2', leave);
+  on('again', () => free ? startBot(L.side) : startLine(L.id, 'practice'));
+  on('swap', () => startBot(L.side === 'w' ? 'b' : 'w'));
+  on('resign', () => { if (S.busy) return; S.sp.resigned = '기권했어요. 다음 판에 다시 도전해요.'; sparStep(); });
   on('spHint', sparHint); on('spUndo', sparUndo);
   on('tglEng', () => { PREF.eng = !PREF.eng; savePref(); render(); });
   on('tglSnd', () => { PREF.snd = !PREF.snd; savePref(); if (PREF.snd) snd('ok'); render(); });
