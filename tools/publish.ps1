@@ -1,4 +1,4 @@
-# 고친 내용을 빌드·검사하고 GitHub에 올려 사이트에 반영합니다.
+﻿# 고친 내용을 빌드·검사하고 GitHub에 올려 사이트에 반영합니다.
 # 사용: powershell -ExecutionPolicy Bypass -File tools/publish.ps1 "무엇을 고쳤는지 한 줄"
 # 올리기 전에 deploy/sw.js 의 CACHE 버전 숫자를 하나 올려 두세요(폰이 새 버전을 받게 하는 신호).
 param([string]$Message = "업데이트")
