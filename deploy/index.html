@@ -3053,7 +3053,7 @@ function renderHome() {
   if (fw >= 2 || fb >= 2) h += '<section class="homework fork"><div><span class="label ink">갈림길 연습</span><h2>상대가 고르는 길에 맞춰 두기</h2><p>배운 오프닝을 한데 섞어요. 상대가 어느 수를 둘지 몰라요.</p></div><div class="frow">' +
     (fw >= 2 ? '<button class="btn" data-fork="w" type="button">백으로 · ' + fw + '개</button>' : '') + (fb >= 2 ? '<button class="btn" data-fork="b" type="button">흑으로 · ' + fb + '개</button>' : '') + '</div></section>';
   h += '<section class="homework fork"><div><span class="label ink">봇과 두기</span><h2>Stockfish와 자유롭게 한 판</h2><p>오프닝과 상관없이 처음부터 둬요. 세기는 판 안에서 바꿀 수 있어요.</p></div><div class="frow">' +
-    '<button class="btn" data-bot="w" type="button">백으로</button><button class="btn" data-bot="b" type="button">흑으로</button><button class="btn" data-bot="r" type="button">아무 색</button></div></section>';
+    (botLoad() ? '<button class="btn primary" id="botRes" type="button">두던 판 이어서 · ' + Math.ceil(botLoad().moves.length / 2) + '수째</button>' : '') + '<button class="btn" data-bot="w" type="button">백으로</button><button class="btn" data-bot="b" type="button">흑으로</button><button class="btn" data-bot="r" type="button">아무 색</button></div></section>';
   h += '<section class="chapter"><div class="chead"><h2>첫 수로 고르기</h2><span class="muted">백이 맨 처음 움직이는 기물</span></div><ul class="toc firsts">';
   const t = today();
   for (const F of FIRSTS) {
@@ -3069,6 +3069,7 @@ function renderHome() {
   $app.querySelectorAll('[data-first]').forEach(b => b.onclick = () => go('first', b.dataset.first));
   $app.querySelectorAll('[data-fork]').forEach(b => b.onclick = () => startFork(b.dataset.fork));
   $app.querySelectorAll('[data-bot]').forEach(b => b.onclick = () => startBot(b.dataset.bot));
+  const botRes = document.getElementById('botRes'); if (botRes) botRes.onclick = resumeBot;
   const sr = document.getElementById('startReview'); if (sr) sr.onclick = () => startReview();
   const se = document.getElementById('startEarly'); if (se) se.onclick = () => startReview(true);
   const sf = document.getElementById('startFirst'); if (sf) sf.onclick = () => go('intro', 'italian-w');
@@ -3546,6 +3547,31 @@ function startSpar() { // 오프닝이 끝난 자리에서 엔진을 상대로 �
   window.scrollTo(0, 0);
   sparStep();
 }
+// 두던 봇 대국은 수를 둘 때마다 저장해 두고, 홈 화면에서 이어서 둘 수 있어요. 판이 끝나면 지워요.
+const BOT_KEY = 'opening-drill-bot';
+function botSave() {
+  if (!S || !S.free) return;
+  try {
+    if (S.sp.over || !S.game.history().length) localStorage.removeItem(BOT_KEY);
+    else localStorage.setItem(BOT_KEY, JSON.stringify({ side: S.line.side, moves: S.game.history(), at: Date.now() }));
+  } catch (e) {}
+}
+function botLoad() {
+  try {
+    const o = JSON.parse(localStorage.getItem(BOT_KEY) || 'null');
+    if (!o || (o.side !== 'w' && o.side !== 'b') || !Array.isArray(o.moves) || !o.moves.length) return null;
+    const g = new Chess(); for (const m of o.moves) if (!g.move(m)) return null;
+    return o;
+  } catch (e) { return null; }
+}
+function resumeBot() {
+  const o = botLoad(); if (!o) return render();
+  S = newSession({ mode: 'spar', free: true, line: { id: null, title: '봇과 두기', side: o.side, after: '', moves: [] }, bookLen: 0, sp: sparInit() });
+  for (const m of o.moves) S.last = S.game.move(m);
+  S.focus = S.last ? S.last.to : null;
+  view = 'play'; window.scrollTo(0, 0);
+  sparStep();
+}
 function startBot(side) { // 오프닝과 상관없이 처음 자리에서 봇과 한 판. side: 'w' | 'b' | 'r'(아무 색)
   if (side !== 'w' && side !== 'b') side = Math.random() < .5 ? 'w' : 'b';
   S = newSession({ mode: 'spar', free: true, line: { id: null, title: '봇과 두기', side, after: '', moves: [] }, bookLen: 0, sp: sparInit() });
@@ -3566,7 +3592,7 @@ function sparOver() {
   return same >= 3 ? '같은 자리가 세 번 나와서 비겼어요.' : '';
 }
 async function sparStep() {
-  const me = S; S.sp.err = ''; S.sp.over = S.sp.resigned || sparOver();
+  const me = S; S.sp.err = ''; S.sp.over = S.sp.resigned || sparOver(); botSave();
   if (S.sp.over) { S.waiting = false; S.busy = false; snd('done'); return render(); }
   if (isUserTurn()) { S.waiting = true; S.busy = false; return render(); }
   S.waiting = false; S.busy = true; render();
@@ -3616,7 +3642,7 @@ function renderSpar() {
     '<div class="ask">' + esc(S.sp.err || over || (S.busy ? '봇이 생각하는 중…' : free ? '내 차례예요.' : '내 차례예요. 오프닝에서 세운 계획대로 둬 보세요.')) + '</div>' +
     (L.after && !over ? '<div class="say">' + esc(L.after) + '</div>' : '') + (free ? '' : '<div class="sched">여기서 두는 수는 복습 기록에 들어가지 않아요.</div>') + '</div>' +
     '<div class="lvsel" role="group" aria-label="봇 세기">' + SPAR_LV.map((x, i) => '<button type="button" data-lv="' + i + '" aria-pressed="' + (i === lv) + '">' + x.n + '</button>').join('') + '</div>' +
-    '<div class="tgls"><button class="tgl" id="tglEng" type="button" aria-pressed="' + !!PREF.eng + '">엔진 평가</button><button class="tgl" id="tglSnd" type="button" aria-pressed="' + PREF.snd + '">효과음</button></div>' +
+    '<div class="tgls"><button class="tgl" id="tglInfl" type="button" aria-pressed="' + PREF.infl + '">공격·수비 표시</button><button class="tgl" id="tglEng" type="button" aria-pressed="' + !!PREF.eng + '">엔진 평가</button><button class="tgl" id="tglSnd" type="button" aria-pressed="' + PREF.snd + '">효과음</button></div>' +
     '<div class="controls bar">' +
     (over ? (free ? '<button class="btn primary" id="again" type="button">새 판</button><button class="btn" id="swap" type="button">색 바꿔서</button><button class="btn text" id="spUndo" type="button">무르기</button>'
                   : '<button class="btn primary" id="again" type="button">오프닝 다시 연습</button><button class="btn text" id="spUndo" type="button">한 수 무르기</button><button class="btn text" id="back2" type="button">그만하기</button>')
@@ -3636,6 +3662,7 @@ function renderSpar() {
   on('swap', () => startBot(L.side === 'w' ? 'b' : 'w'));
   on('resign', () => { if (S.busy) return; S.sp.resigned = '기권했어요. 다음 판에 다시 도전해요.'; sparStep(); });
   on('spHint', sparHint); on('spUndo', sparUndo);
+  on('tglInfl', () => { PREF.infl = !PREF.infl; savePref(); render(); });
   on('tglEng', () => { PREF.eng = !PREF.eng; savePref(); render(); });
   on('tglSnd', () => { PREF.snd = !PREF.snd; savePref(); if (PREF.snd) snd('ok'); render(); });
   $app.querySelectorAll('[data-lv]').forEach(b => b.onclick = () => { PREF.sfLv = +b.dataset.lv; savePref(); render(); });
