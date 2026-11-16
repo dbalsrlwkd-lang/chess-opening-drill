@@ -206,7 +206,12 @@ g.in_check(); g.in_checkmate(); g.perft(depth);
 
 ## 7. 배포와 설치
 
-**배포됨(2026-11-16): https://beautiful-kheer-daa2f4.netlify.app** — Netlify 무료 요금제, 사용자가 직접 `deploy/` 폴더를 끌어다 올림(Public). 사용자가 폰에서 동작을 확인했습니다. 고친 뒤에는 `sw.js`의 캐시 버전을 올리고, 사용자가 Netlify 프로젝트의 Deploys 화면에 `deploy/` 폴더를 다시 끌어다 놓아야 반영됩니다(Claude가 대신 올릴 수 없음). Netlify 화면의 AI 에이전트 기능("Improve mobile layout" 등)은 쓰지 않습니다.
+**배포됨(2026-11-16): https://dbalsrlwkd-lang.github.io/chess-opening-drill/** (GitHub Pages)
+- 저장소: https://github.com/dbalsrlwkd-lang/chess-opening-drill (공개). `main` 브랜치가 전체 소스, `gh-pages` 브랜치가 `deploy/` 폴더 내용입니다.
+- **올리는 방법**: `deploy/sw.js`의 캐시 버전을 올린 뒤 `powershell -ExecutionPolicy Bypass -File tools/publish.ps1 "고친 내용"`. 빌드 → 수순 검사 → 커밋 → `main` 푸시 → `git subtree push --prefix deploy origin gh-pages` 를 한 번에 합니다. 1~2분 뒤 반영됩니다.
+- Git과 GitHub CLI는 2026-11-16에 winget으로 설치했고, `gh`는 사용자 계정(dbalsrlwkd-lang)으로 로그인돼 있습니다. 토큰 권한에 `workflow`가 없어서 GitHub Actions 파일(.github/workflows)은 올릴 수 없습니다. 그래서 Actions 대신 gh-pages 브랜치 방식을 씁니다.
+- 커밋 작성자는 GitHub noreply 주소로 설정했습니다(저장소 로컬 설정). 사용자의 실제 이메일을 커밋에 넣지 말 것.
+- 예전에 Netlify(https://beautiful-kheer-daa2f4.netlify.app)에도 올렸습니다. 지금은 쓰지 않는 예전 버전입니다. 주소가 달라 기록은 서로 이어지지 않습니다.
 아래는 처음 배포할 때의 안내입니다.
 2026-11-16 점검: `deploy/` 10개 파일(약 2.3MB)이 그대로 올릴 수 있는 상태. 로컬 서버에서 서비스 워커가 엔진 파일까지 저장하고, 서버를 끈 뒤에도 앱과 엔진이 동작함을 확인. 사용자에게는 Netlify Drop(app.netlify.com/drop)을 안내함.
 
@@ -240,7 +245,7 @@ g.in_check(); g.in_checkmate(); g.perft(depth);
 4. 갈림길 데이터 보강. 지금은 오프닝끼리 앞부분이 겹칠 때만 갈림길이 생깁니다. 한 오프닝 안에서 "상대가 여기서 다른 수를 두면"을 직접 적을 수 있도록 데이터 형식을 넓히는 방법을 생각해 볼 수 있습니다. 예: 수 객체에 `branch: [{ san, note, then: [...] }]`.
 5. 빠진 오프닝: 시실리안의 다른 변화(스베시니코프, 타이마노프, 가속 드래곤), 프렌치·카로칸의 다른 백 대응(교환, 타라시), 런던·카탈란을 흑으로 받는 법, 트롬포프스키 등.
 6. 코드 정리: `app.js`를 기능별 파일로 나누기, `initCloud` 제거, Playwright 테스트를 이 폴더 기준으로 다시 세우기(`tools/ui-tests-reference/` 참고).
-7. git 저장소로 만들기. 지금까지는 백업 파일을 이름만 바꿔 쌓아 왔습니다.
+7. (완료) git 저장소로 만들고 GitHub에 올림.
 
 ## 10. 화면 테스트 참고
 
