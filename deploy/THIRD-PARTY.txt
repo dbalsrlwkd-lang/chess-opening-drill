@@ -1,0 +1,8 @@
+이 앱은 체스 엔진 Stockfish 19 (Stockfish.js, lite single-threaded 빌드)를 함께 배포합니다.
+
+  파일: stockfish-19-lite-single.js, stockfish-19-lite-single.wasm
+  라이선스: GNU General Public License v3.0 (GPL-3.0)
+  소스 코드: https://github.com/nmrugg/stockfish.js  (원본: https://github.com/official-stockfish/Stockfish)
+  라이선스 전문: https://www.gnu.org/licenses/gpl-3.0.html
+
+엔진 파일은 고치지 않고 그대로 넣었습니다. 앱은 엔진을 별도 작업자(Web Worker)로 띄워 UCI 글자 명령으로만 주고받습니다.

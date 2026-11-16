@@ -1,0 +1,44 @@
+// 해설에 적은 전술 수순이 실제로 둘 수 있는 수순인지 확인합니다.  사용: node tools/claims.js
+const fs=require('fs'),path=require('path');eval(fs.readFileSync(path.join(__dirname,'..','src','engine.js'),'utf8')+';global.Chess=Chess');
+function play(s){const g=new Chess();for(const m of s.split(' ')){if(!g.move(m)){console.log('ILLEGAL',m,'in',s);return g;}}console.log('ok',s,'| last:',g.history().slice(-1)[0]);return g;}
+play('e4 e5 Nf3 Nc6 Bb5 a6 Bxc6 dxc6 Nxe5 Qd4 Nf3 Qxe4+');
+play('e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 d4 Nxd4 Nxd4 exd4 Qxd4 c5 Qd1 c4');
+play('e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Nxe4 Re1 Nc5 Nxe5');
+play('e4 e6 d4 d5 e5 c5 c3 Nc6 Nf3 Qb6 Bd3 cxd4 cxd4 Nxd4 Nxd4 Qxd4 Bb5+ Bd7 Qxd4');
+play('e4 e6 d4 d5 e5 c5 c3 Nc6 Nf3 Qb6 Be2 Qxb2 Bxb2');
+play('e4 e6 d4 d5 e5 c5 c3 Nc6 Nf3 Qb6 Be2 cxd4 cxd4 Nxd4 Nxd4 Qxd4 Qxd4');
+play('e4 e6 d4 d5 e5 Nf6 exf6');
+play('d4 d5 c4 e6 Nc3 Nf6 Bg5 Nbd7 cxd5 exd5 Nxd5 Nxd5 Bxd8 Bb4+ Qd2 Bxd2+ Kxd2 Kxd8');
+play('d4 d5 c4 dxc4 e3 b5 a4 c6 axb5 cxb5 Qf3');
+play('d4 d5 Bf4 Nf6 e3 e6 Nf3 c5 c3 Nc6 Nbd2 Bd6 Bg3 Bxg3 hxg3');
+play('d4 d5 Bf4 Nf6 e3 e6 Nf3 c5 dxc5 Bxc5');
+play('e4 c5 Nf3 Nf6 e5');
+console.log('--- new');
+function mate(s){const g=play(s);console.log('   mate?',g.in_checkmate());}
+mate('e4 e5 Nf3 Nc6 Bc4 Nd4 Nxe5 Qg5 Nxf7 Qxg2 Rf1 Qxe4+ Be2 Nf3#');
+mate('d4 e5 dxe5 Nc6 Nf3 Qe7 Bf4 Qb4+ Bd2 Qxb2 Bc3 Bb4 Qd2 Bxc3 Qxc3 Qc1#');
+play('d4 e5 dxe5 Nc6 Nf3 Qe7 Bf4 Qb4+ Qd2 Qxb2 Qc3 Bb4');
+play('e4 e5 Nf3 Nc6 Nc3 Nf6 Bc4 Nxe4 Nxe4 d5');
+play('e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d4 exd4 cxd4 Bb4+ Bd2 Bxd2+ Qxd2 Nxe4');
+play('e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d4 exd4 cxd4 Bb4+ Bd2 Bxd2+ Nbxd2 d5 Bd3 dxe4');
+play('e4 e5 f4 exf4 d4 Qh4+ Ke2');
+play('e4 c6 d4 d5 Nc3 dxe4 Nxe4 Bf5 Ng3 Bg6 h4 Nf6 h5 Be4 Nxe4');
+play('e4 d5 exd5 Qxd5 Nc3 Qc6 Bb5 Qxb5 Nxb5');
+play('d4 d5 c4 Nf6 cxd5 Nxd5 e4');
+play('d4 Nf6 c4 g6 Nc3 Bg7 e4 d6 Nf3 O-O Be2 e5 dxe5 dxe5 Qxd8 Rxd8 Nxe5 Nxe4');
+play('e4 e5 Nf3 Nc6 Bc4 Bc5 b4 Bxb4 c3 Ba5 d4 exd4 cxd4 Bb4+');
+play('d4 d5 c4 e6 Nc3 Nf6 Bg5 Nbd7 cxd5 Nxd5 Bxd8');
+console.log('--- batch3');
+play('e4 e5 Nf3 Nf6 Nxe5 Nxe4 Qe2 Nf6 Nc6+ Be7 Nxd8');
+play('e4 e5 Nf3 Nf6 Nxe5 d6 Nf3 Nxe4 d4 d5 Bd3 Bd6 O-O O-O c4 dxc4 Bxe4');
+play('e4 e5 Nf3 d6 d4 Bg4 dxe5 Bxf3 Qxf3 dxe5 Bc4');
+play('d4 d5 c4 c6 Nf3 Bf5 cxd5 cxd5 Qb3');
+play('d4 d5 c4 c6 Nf3 Nf6 Nc3 dxc4 a4 b5 axb5 cxb5 Nxb5');
+play('d4 d5 c4 dxc4 e3 b5 a4 c6 axb5 cxb5 Qf3');
+play('d4 Nf6 c4 g6 Nc3 d5 cxd5 Qxd5 Nxd5');
+play('d4 Nf6 c4 e6 Nc3 Bb4 e4 Nxe4');
+play('e4 Nf6 e5 Nd5 d4 d6 Nf3 Bg4 Be2 e6 O-O Be7 c4 Nf4 Bxf4');
+play('e4 e5 Nc3 Nf6 f4 exf4 e5');
+console.log('--- batch4');
+play('e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 O-O Bxc6 dxc6 Nxe5');
+play('e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e5 Bb5+');
