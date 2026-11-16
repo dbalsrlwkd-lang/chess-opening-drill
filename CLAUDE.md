@@ -58,7 +58,7 @@ node tools/serve.js                          # 엔진 기능은 file:// 에서 �
 ```
 
 `src/`를 고친 뒤에는 반드시 `node build.js` → `node tools/validate.js opening-drill.html` 순서로 확인합니다.
-배포본을 바꿀 때는 `deploy/sw.js`의 `CACHE` 버전 숫자도 올려야 폰에 새 버전이 반영됩니다(현재 `opening-drill-cache-v15`).
+배포본을 바꿀 때는 `deploy/sw.js`의 `CACHE` 버전 숫자도 올려야 폰에 새 버전이 반영됩니다(현재 `opening-drill-cache-v16`).
 효과음(`snd`)은 Web Audio로 만듭니다. 사용자 요청으로 수를 둘 때는 기물 소리만 내고 정답·오답 알림음은 내지 않습니다(퀴즈와 완주 소리만 남김). move·cap은 `knock`(짧은 잡음 + 금방 사라지는 나무 울림 음 4개, 매번 높이가 조금 다름)으로 실제 기물 소리를 흉내 냄. Lichess 기본 효과음은 자유 라이선스가 아니라서(COPYING.md의 non-free 예외) 쓰지 않음, ok, bad, alt, done. 폰 스피커는 낮은 음이 안 들려서 400Hz 이상과 걸러 낸 잡음을 씁니다. 폰은 터치가 끝날 때만 소리를 허락하므로 첫 터치에 `audio()`로 미리 켭니다.
 
 ## 3. 데이터 형식

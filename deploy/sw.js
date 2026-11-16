@@ -1,6 +1,6 @@
 ﻿// 오프닝 연습장 서비스 워커: 한 번 접속하면 인터넷 없이도 열려요.
 // 앱을 고쳐서 다시 올릴 때는 아래 버전 숫자를 하나 올려 주세요.
-const CACHE = 'opening-drill-cache-v15';
+const CACHE = 'opening-drill-cache-v16';
 const ASSETS = ['./', './index.html', './stockfish-19-lite-single.js', './stockfish-19-lite-single.wasm','./manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
